@@ -3,9 +3,5 @@
     <string name="send_text">发送文本</string>
     <string name="send_video">发送语音</string>
     <string name="send_audio">语音通话</string>
-    <string name="hang_up">挂断</string>
-    <string name="answer">接听</string>
-    <string name="mute">mute</string>
-    <string name="Hands_free">Hands_free</string>
     <string name="call_video">视频通话</string>
 </resources>

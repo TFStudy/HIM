@@ -27,6 +27,8 @@ import com.hyphenate.chat.EMCallStateChangeListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMMessage;
 import com.hyphenate.chat.EMVoiceMessageBody;
+import com.hyphenate.chat.adapter.message.EMAMessage;
+import com.hyphenate.exceptions.EMServiceNotReadyException;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -36,6 +38,7 @@ import com.ztf.him.app.App;
 import com.ztf.him.bean.TokenBean;
 import com.ztf.him.cmmon.OnItemClickListener;
 import com.ztf.him.cmmon.Player;
+import com.ztf.him.utils.LogUtils;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -54,11 +57,11 @@ import io.rong.imlib.model.Conversation;
 public class MainActivity extends AppCompatActivity {
     public static String name = "ztf147";
     private MainAdapter mAdapter;
-    private RecyclerView mainRv;
     private Button sendText, sendVideo, sendAudio, callVideo;
     private List<EMMessage> mData = new ArrayList<>();
     private boolean isLogin = false;
     private String filePath;
+    private String token;
 
     /**
      * 消息监听
@@ -98,7 +101,10 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
+    /**
+     * 创建
+     * @param savedInstanceState Bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
         registerListener();
         initEvent();
     }
-
 
     /**
      * 事件
@@ -142,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         callVideo.setOnClickListener(v -> {
-            if (isLogin){
+            if (isLogin) {
                 callVideo(v);
             }
         });
@@ -150,7 +155,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 发送视频通话
-     * @param v
+     *
+     * @param v 当前视图
      */
     private void callVideo(View v) {
         Intent intent = new Intent(RongVoIPIntent.RONG_INTENT_ACTION_VOIP_SINGLEVIDEO);
@@ -161,9 +167,9 @@ public class MainActivity extends AppCompatActivity {
 
         intent.setPackage(getPackageName());
         getApplicationContext().startActivity(intent);
+        EMMessage message = EMMessage.createVideoSendMessage("", "", 0, getToChatUserName());
+        mData.add(message);
     }
-
-    private String token;
 
     /**
      * 注册融信
@@ -175,8 +181,7 @@ public class MainActivity extends AppCompatActivity {
         String nonce = String.valueOf(Math.random() * 1000000);
         //生成签名
         //Signature (数据签名)计算方法：将系统分配的 App Secret、Nonce (随机数)、Timestamp (时间戳)三个字符串按先后顺序拼接成一个字符串并进行 SHA1 哈希计算
-        StringBuilder toSign = new StringBuilder("iGcnUwhblnQ5UP").append(nonce).append(timestamp);
-        String signature = sha1(toSign.toString());
+        String signature = sha1("iGcnUwhblnQ5UP" + nonce + timestamp);
 
         OkGo.<String>post("https://api-cn.ronghub.com/user/getToken.json")
                 .headers("App-Key", "k51hidwqkvqib")
@@ -190,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        Log.d("main", "--onSuccess register" + response.body());
+                        LogUtils.d("--onSuccess register" + response.body());
                         if (response.code() == 200) {
                             Gson gson = new Gson();
                             TokenBean tokenBean = gson.fromJson(response.body(), TokenBean.class);
@@ -201,14 +206,15 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Response<String> response) {
-                        Log.d("main", "--onError register" + response.message());
+                        LogUtils.d("--onError register" + response.message());
                     }
                 });
     }
 
     /**
      * 语音通话
-     * @param view
+     *
+     * @param view 当前视图
      */
     public void startTalk(View view) {
         Intent intent = new Intent(RongVoIPIntent.RONG_INTENT_ACTION_VOIP_SINGLEAUDIO);
@@ -230,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(String s) {
-                    Log.d("main", "--onSuccess" + s);
+                    LogUtils.d("--onSuccess" + s);
                     Toast.makeText(MainActivity.this, "成功", Toast.LENGTH_LONG).show();
                 }
 
@@ -250,29 +256,31 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 签名
-     * @param data
-     * @return
+     *
+     * @param data 将系统分配的 App Secret、Nonce (随机数)、Timestamp (时间戳)三个字符串按先后顺序拼接成一个字符串并进行 SHA1 哈希计算
+     * @return 签名数据
      */
     private static String sha1(String data) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         try {
             MessageDigest md = MessageDigest.getInstance("SHA1");
             md.update(data.getBytes());
             byte[] bits = md.digest();
-            for (int i = 0; i < bits.length; i++) {
-                int a = bits[i];
+            for (int bit : bits) {
+                int a = bit;
                 if (a < 0) a += 256;
                 if (a < 16) buf.append("0");
                 buf.append(Integer.toHexString(a));
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return buf.toString();
     }
 
     /**
      * 发送语音通话
-     * @param v
+     *
+     * @param v 当前视图
      */
     private void sendAudioForUser(View v) {
         startTalk(v);
@@ -292,6 +300,12 @@ public class MainActivity extends AppCompatActivity {
                 .record();
     }
 
+    /**
+     * activity执行结果
+     * @param requestCode 状态码
+     * @param resultCode 结果码
+     * @param data 数据
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -312,17 +326,18 @@ public class MainActivity extends AppCompatActivity {
                 mAdapter.notifyDataSetChanged();
             } else if (resultCode == RESULT_CANCELED) {
                 // Oops! User has canceled the recording
-                Log.d("main", "error");
+                LogUtils.d("error");
             }
         }
     }
 
     /**
-     * 初始化组件
+     * 初始化组件，及是否打开log(测试打开，上线关闭)
      */
     private void initView() {
+        App.setDebug(false);
         callVideo = findViewById(R.id.call_video);
-        mainRv = findViewById(R.id.main_rv);
+        RecyclerView mainRv = findViewById(R.id.main_rv);
         mAdapter = new MainAdapter(this, mData, mainRv);
         mainRv.setAdapter(mAdapter);
         mainRv.setLayoutManager(new LinearLayoutManager(this));
@@ -377,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
             public void onSuccess() {
                 EMClient.getInstance().groupManager().loadAllGroups();
                 EMClient.getInstance().chatManager().loadAllConversations();
-                Log.d("main", "登录聊天服务器成功！" + name);
+                LogUtils.d("登录聊天服务器成功！" + name);
                 isLogin = true;
             }
 
@@ -388,7 +403,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(int code, String message) {
-                Log.d("main", "登录聊天服务器失败！" + message);
+                LogUtils.d("登录聊天服务器失败！" + message);
             }
         });
     }

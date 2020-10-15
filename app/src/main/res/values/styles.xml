@@ -6,17 +6,4 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
-    <style name="style_call_tools_panel_button">
-        <item name="android:layout_width">@dimen/adaptive_56dp</item>
-        <item name="android:layout_height">@dimen/adaptive_56dp</item>
-        <item name="android:layout_centerHorizontal">true</item>
-        <item name="android:scaleType">fitCenter</item>
-        <item name="android:background">@drawable/em_call_btn_bg</item>
-    </style>
-    <style name="FullScreenVoiceTheme" parent="AppTheme">
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-    </style>
 </resources>

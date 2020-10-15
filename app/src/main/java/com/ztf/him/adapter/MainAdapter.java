@@ -71,6 +71,9 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         EMMessage chatMsg = mDatas.get(position);
+        /**
+         * 判断是否是文本信息
+         */
         if(!(chatMsg.getType() == EMMessage.Type.VOICE)){
             String s = getString(chatMsg);
             if (holder instanceof ChatSendViewHolder) {
@@ -92,8 +95,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         StringBuilder builder = new StringBuilder(msg);
         StringBuilder newStr = builder.replace(0, 1, " ");
         StringBuilder content = newStr.replace(newStr.length() - 1, newStr.length(), " ");
-        String s = content.toString().replaceAll(" +", "");
-        return s;
+        return content.toString().replaceAll(" +", "");
     }
 
     @Override

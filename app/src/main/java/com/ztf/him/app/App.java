@@ -3,7 +3,6 @@ package com.ztf.him.app;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
-import android.content.IntentFilter;
 
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMOptions;
@@ -11,6 +10,15 @@ import com.hyphenate.chat.EMOptions;
 import io.rong.imkit.RongIM;
 
 public class App extends Application {
+    private static boolean isDebug;
+
+    public static void setDebug(boolean debug) {
+        isDebug = debug;
+    }
+
+    public static boolean isDebug() {
+        return isDebug;
+    }
 
     @Override
     public void onCreate() {
