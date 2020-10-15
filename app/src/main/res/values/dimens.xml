@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_size">12sp</dimen>
+    <dimen name="name_msg">16sp</dimen>
+    <dimen name="content_msg">14sp</dimen>
+    <dimen name="date_msg">10sp</dimen>
+    <dimen name="img_avatar">49dp</dimen>
+    <dimen name="item_padding">15dp</dimen>
+    <dimen name="item_height">60dp</dimen>
+    <dimen name="item_weight">0dp</dimen>
+    <dimen name="name_contacts">18sp</dimen>
+    <dimen name="adaptive_56dp">47dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+</resources>

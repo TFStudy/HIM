@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/item_padding">
+
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/tv_chat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_toRightOf="@+id/img_chat"
+        android:paddingTop="15dp"
+        android:text="this is a audio"
+        android:textIsSelectable="true"
+        android:textSize="@dimen/name_msg" />
+
+    <ImageView
+        android:visibility="visible"
+        android:id="@+id/receive_sound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_toRightOf="@+id/img_chat"
+        android:paddingTop="15dp"
+        android:src="@drawable/send_sond"/>
+
+    <ImageView
+        android:id="@+id/img_chat"
+        android:layout_width="@dimen/img_avatar"
+        android:layout_height="@dimen/img_avatar"
+        android:layout_alignParentLeft="true"
+        android:paddingTop="15dp"
+        android:src="@drawable/receive" />
+
+</RelativeLayout>
