@@ -34,7 +34,6 @@ import io.rong.callkit.RongVoIPIntent;
 import io.rong.imlib.model.Conversation;
 
 public class MainActivity extends AppCompatActivity {
-    public static String name;
     private MainAdapter mAdapter;
     private Button sendText, sendVideo, sendAudio, callVideo;
     private List<EMMessage> mData = new ArrayList<>();
@@ -49,9 +48,14 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onMessageReceived(List<EMMessage> messages) {
+            String from = messages.get(0).getFrom();
+            LogUtils.d("发送端" + from);
             //收到消息
             mData.addAll(messages);
-            runOnUiThread(() -> mAdapter.notifyDataSetChanged());
+           runOnUiThread(() -> {
+               mAdapter.notifyDataSetChanged();
+               nameInput.setText(from);
+           });
         }
 
         @Override
@@ -135,8 +139,6 @@ public class MainActivity extends AppCompatActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setPackage(getPackageName());
             getApplicationContext().startActivity(intent);
-            EMMessage message = EMMessage.createVideoSendMessage("", "", 0, name);
-            mData.add(message);
         }
     }
 
@@ -171,14 +173,17 @@ public class MainActivity extends AppCompatActivity {
      * 发送语音
      */
     private void sendVideoMessage() {
-        filePath = Environment.getExternalStorageDirectory() + "/audio.wav";
-        int color = getResources().getColor(R.color.colorPrimaryDark);
-        int requestCode = 0;
-        AndroidAudioRecorder.with(this)
-                .setFilePath(filePath)
-                .setColor(color)
-                .setRequestCode(requestCode)
-                .record();
+        String name = getToChatUserName();
+        if (name != null) {
+            filePath = Environment.getExternalStorageDirectory() + "/audio.wav";
+            int color = getResources().getColor(R.color.colorPrimaryDark);
+            int requestCode = 0;
+            AndroidAudioRecorder.with(this)
+                    .setFilePath(filePath)
+                    .setColor(color)
+                    .setRequestCode(requestCode)
+                    .record();
+        }
     }
 
     /**
@@ -201,14 +206,11 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                String name = getToChatUserName();
-                if (name != null) {
-                    int duration = mediaPlayer.getDuration();
-                    EMMessage message = EMMessage.createVoiceSendMessage(uri, duration, name);
-                    EMClient.getInstance().chatManager().sendMessage(message);
-                    mData.add(message);
-                    mAdapter.notifyDataSetChanged();
-                }
+                int duration = mediaPlayer.getDuration();
+                EMMessage message = EMMessage.createVoiceSendMessage(uri, duration, getToChatUserName());
+                EMClient.getInstance().chatManager().sendMessage(message);
+                mData.add(message);
+                mAdapter.notifyDataSetChanged();
             } else if (resultCode == RESULT_CANCELED) {
                 // Oops! User has canceled the recording
                 LogUtils.d("error");
@@ -220,7 +222,6 @@ public class MainActivity extends AppCompatActivity {
      * 初始化组件
      */
     private void initView() {
-        name = getIntent().getStringExtra("name");
         nameInput = (EditText) findViewById(R.id.name_input);
         callVideo = findViewById(R.id.call_video);
         RecyclerView mainRv = findViewById(R.id.main_rv);
@@ -266,10 +267,10 @@ public class MainActivity extends AppCompatActivity {
             return null;
         } else {
             toChatUsername = nameInput.getText().toString();
+            LogUtils.d(toChatUsername);
             return toChatUsername;
         }
     }
-
 
     /**
      * 销毁，移除监听

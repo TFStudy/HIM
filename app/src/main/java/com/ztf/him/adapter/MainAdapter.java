@@ -1,8 +1,6 @@
 package com.ztf.him.adapter;
 
 import android.content.Context;
-import android.os.UserManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.hyphenate.chat.EMMessage;
 import com.ztf.him.R;
 import com.ztf.him.cmmon.OnItemClickListener;
+import com.ztf.him.ui.LoginActivity;
 import com.ztf.him.ui.MainActivity;
 
 import java.util.List;
@@ -61,7 +60,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     @Override
     public int getItemViewType(int position) {
         EMMessage message = mDatas.get(position);
-        if (message.getFrom().equals(MainActivity.name)) {
+        if (message.getFrom().equals(LoginActivity.name)) {
             return TYPE_SEND;
         } else {
             return TYPE_RECEIVED;

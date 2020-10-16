@@ -46,12 +46,12 @@ public class Player implements MediaPlayer.OnCompletionListener,
     @Override
     public void onPrepared(MediaPlayer arg0) {
         arg0.start();
-        Log.e("mediaPlayer", "onPrepared");
+        LogUtils.d("onPrepared");
     }
 
     @Override
     public void onCompletion(MediaPlayer arg0) {
-        Log.e("mediaPlayer", "onCompletion");
+        LogUtils.d("onCompletion");
     }
 
     /**

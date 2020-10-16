@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,6 +34,7 @@ import io.rong.imlib.RongIMClient;
 
 public class LoginActivity extends AppCompatActivity {
 
+    public static String name;
     private EditText accountInput;
     private EditText passwordInput;
     private Button btnLogin;
@@ -42,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        App.setDebug(true);
+        App.setDebug(false);
         initView();
         initEvent();
     }
@@ -60,17 +63,31 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initEvent() {
-        ootLogin.setOnClickListener(v -> {
-            String text = getText();
-            if (text != null) {
-                outLogin();
+        accountInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
             }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                name = accountInput.getText().toString();
+            }
+        });
+        ootLogin.setOnClickListener(v -> {
+            outLogin();
         });
         btnLogin.setOnClickListener(v -> {
             String text = getText();
             LogUtils.d(text);
             if (text != null) {
                 LogUtils.d("login");
+                rxRegister(text);
                 login(text);
             }
         });
@@ -87,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
      * 退出登录用户
      */
     private void outLogin() {
-        new Thread(()->{
+        new Thread(() -> {
             EMClient.getInstance().logout(true, new EMCallBack() {
 
                 @Override
@@ -117,7 +134,7 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 EMClient.getInstance().createAccount(split[0], split[1]);
                 LogUtils.d("register success");
-                rxRegister(split[0]);
+                Toast.makeText(LoginActivity.this, "注册成功，请登录", Toast.LENGTH_SHORT).show();
             } catch (HyphenateException e) {
                 LogUtils.d(e.getMessage());
                 if (Objects.equals(e.getMessage(), "User already exist")) {
@@ -149,8 +166,14 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onError(int code, String message) {
                 LogUtils.d("登录聊天服务器失败！" + message);
-                if (Objects.equals(message,"User is already login")){
-                    Toast.makeText(LoginActivity.this, "用户已登录", Toast.LENGTH_SHORT).show();
+                if (Objects.equals(message, "User is already login")) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(LoginActivity.this, "用户已登录", Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        Toast.makeText(LoginActivity.this, "用户不存在，请注册", Toast.LENGTH_SHORT).show();
+                    });
                 }
             }
         });
@@ -191,13 +214,13 @@ public class LoginActivity extends AppCompatActivity {
                 public void onSuccess(String s) {
                     LogUtils.d("--onSuccess" + s);
                     LogUtils.d("登录成功");
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class).putExtra("name",s));
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 }
 
                 @Override
                 public void onError(RongIMClient.ConnectionErrorCode connectionErrorCode) {
-
+                    LogUtils.d("登录失败" + connectionErrorCode.getValue());
                 }
 
                 @Override
@@ -216,6 +239,7 @@ public class LoginActivity extends AppCompatActivity {
      * @param text
      */
     private void rxRegister(String text) {
+        String name = text.split(":")[0];
         //生成时间戳
         String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
         //生成随机数  不超过 18 个字符。
@@ -230,15 +254,14 @@ public class LoginActivity extends AppCompatActivity {
                 .headers("Nonce", nonce)
                 .headers("Signature", signature)
                 .headers("Content-Type", "application/x-www-form-urlencoded")
-                .params("userId", text)
-                .params("name", text)
+                .params("userId", name)
+                .params("name", name)
                 .params("portraitUri", "")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         LogUtils.d("--onSuccess register" + response.body());
                         if (response.code() == 200) {
-                            Toast.makeText(LoginActivity.this, "注册成功，请点击登录", Toast.LENGTH_SHORT).show();
                             Gson gson = new Gson();
                             TokenBean tokenBean = gson.fromJson(response.body(), TokenBean.class);
                             String token = tokenBean.getToken();
