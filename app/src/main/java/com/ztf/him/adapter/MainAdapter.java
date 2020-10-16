@@ -62,9 +62,9 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     public int getItemViewType(int position) {
         EMMessage message = mDatas.get(position);
         if (message.getFrom().equals(MainActivity.name)) {
-            return TYPE_RECEIVED;
-        } else {
             return TYPE_SEND;
+        } else {
+            return TYPE_RECEIVED;
         }
     }
 
@@ -105,9 +105,9 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
     @Override
     public void onClick(View v) {
-//        根据RecyclerView获得当前View的位置
+        //根据RecyclerView获得当前View的位置
         int position = rv.getChildAdapterPosition(v);
-//        程序执行到此，会去执行具体实现的onItemClick()方法
+        //程序执行到此，会去执行具体实现的onItemClick()方法
         if (onItemClickListener!=null){
             onItemClickListener.onItemClick(rv,v,position,mDatas.get(position));
         }

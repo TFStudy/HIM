@@ -2,22 +2,14 @@ package com.ztf.him.cmmon;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
-import android.widget.SeekBar;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import com.ztf.him.utils.LogUtils;
 
 public class Player implements MediaPlayer.OnCompletionListener,
         MediaPlayer.OnPreparedListener {
     public MediaPlayer mediaPlayer;
-    private SeekBar skbProgress;
-    private Timer mTimer = new Timer();
     private String videoUrl;
-    private boolean pause;
-    private int playPosition;
 
     public Player(String videoUrl) {
         this.videoUrl = videoUrl;
@@ -26,28 +18,16 @@ public class Player implements MediaPlayer.OnCompletionListener,
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setOnPreparedListener(this);
         } catch (Exception e) {
-            Log.e("mediaPlayer", "error", e);
+            LogUtils.d(e.getMessage());
         }
 
     }
-
-
-    Handler handleProgress = new Handler() {
-        public void handleMessage(Message msg) {
-            int position = mediaPlayer.getCurrentPosition();
-            int duration = mediaPlayer.getDuration();
-            if (duration > 0) {
-                long pos = skbProgress.getMax() * position / duration;
-                skbProgress.setProgress((int) pos);
-            }
-        };
-    };
 
     /**
      * 播放
      */
     public void play() {
-        playNet(0);
+        playNet();
     }
 
 
@@ -60,10 +40,10 @@ public class Player implements MediaPlayer.OnCompletionListener,
         }
     }
 
-    @Override
     /**
      * 通过onPrepared播放
      */
+    @Override
     public void onPrepared(MediaPlayer arg0) {
         arg0.start();
         Log.e("mediaPlayer", "onPrepared");
@@ -76,16 +56,14 @@ public class Player implements MediaPlayer.OnCompletionListener,
 
     /**
      * 播放音乐
-     *
-     * @param playPosition
      */
-    private void playNet(int playPosition) {
+    private void playNet() {
         try {
             mediaPlayer.reset();// 把各项参数恢复到初始状态
             mediaPlayer.setDataSource(videoUrl);
             mediaPlayer.prepare();// 进行缓冲
             mediaPlayer.setOnPreparedListener(new MyPreparedListener(
-                    playPosition));
+                    0));
         } catch (Exception e) {
             e.printStackTrace();
         }

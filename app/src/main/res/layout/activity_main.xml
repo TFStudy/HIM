@@ -7,6 +7,18 @@
     android:orientation="vertical"
     tools:context=".ui.MainActivity">
 
+    <EditText
+        android:id="@+id/name_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:background="@drawable/rounded_edit"
+        android:gravity="center"
+        android:hint="@string/input_name"
+        android:inputType="text"
+        android:textSize="20sp" />
+
     <Button
         android:id="@+id/send_text"
         android:layout_width="match_parent"
