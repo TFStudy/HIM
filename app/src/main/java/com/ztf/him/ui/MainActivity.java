@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private List<EMMessage> mData = new ArrayList<>();
     private String filePath;
     private EditText nameInput, msgInput;
+    private RecyclerView mainRv;
 
     /**
      * 消息监听
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
             mData.addAll(messages);
             runOnUiThread(() -> {
                 mAdapter.notifyDataSetChanged();
+                movePosition();
                 nameInput.setText(from);
             });
         }
@@ -212,11 +214,16 @@ public class MainActivity extends AppCompatActivity {
                 EMClient.getInstance().chatManager().sendMessage(message);
                 mData.add(message);
                 mAdapter.notifyDataSetChanged();
+                movePosition();
             } else if (resultCode == RESULT_CANCELED) {
                 // Oops! User has canceled the recording
                 LogUtils.d("error");
             }
         }
+    }
+
+    private void movePosition(){
+        mainRv.scrollToPosition(mAdapter.getItemCount()-1);
     }
 
     /**
@@ -226,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
         msgInput = (EditText) findViewById(R.id.msg_input);
         nameInput = (EditText) findViewById(R.id.name_input);
         callVideo = findViewById(R.id.call_video);
-        RecyclerView mainRv = findViewById(R.id.main_rv);
+        mainRv = findViewById(R.id.main_rv);
         mAdapter = new MainAdapter(this, mData, mainRv);
         mainRv.setAdapter(mAdapter);
         mainRv.setLayoutManager(new LinearLayoutManager(this));
@@ -259,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
                 msgInput.setText("");
                 mData.add(message);
                 mAdapter.notifyDataSetChanged();
+                movePosition();
             }
         }
     }
