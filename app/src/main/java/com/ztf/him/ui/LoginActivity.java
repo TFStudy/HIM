@@ -134,7 +134,7 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 EMClient.getInstance().createAccount(split[0], split[1]);
                 LogUtils.d("register success");
-                Toast.makeText(LoginActivity.this, "注册成功，请登录", Toast.LENGTH_SHORT).show();
+                runOnUiThread(() -> Toast.makeText(LoginActivity.this, "注册成功，请登录", Toast.LENGTH_SHORT).show());
             } catch (HyphenateException e) {
                 LogUtils.d(e.getMessage());
                 if (Objects.equals(e.getMessage(), "User already exist")) {

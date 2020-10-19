@@ -19,6 +19,18 @@
         android:inputType="text"
         android:textSize="20sp" />
 
+    <EditText
+        android:id="@+id/msg_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:background="@drawable/rounded_edit"
+        android:gravity="center"
+        android:hint="@string/input_msg"
+        android:inputType="text"
+        android:textSize="20sp" />
+
     <Button
         android:id="@+id/send_text"
         android:layout_width="match_parent"

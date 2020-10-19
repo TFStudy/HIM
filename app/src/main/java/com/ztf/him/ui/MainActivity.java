@@ -12,11 +12,13 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.hyphenate.EMMessageListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMMessage;
 import com.hyphenate.chat.EMVoiceMessageBody;
+import com.hyphenate.exceptions.HyphenateException;
 import com.ztf.him.R;
 import com.ztf.him.adapter.MainAdapter;
 import com.ztf.him.cmmon.Player;
@@ -38,8 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private Button sendText, sendVideo, sendAudio, callVideo;
     private List<EMMessage> mData = new ArrayList<>();
     private String filePath;
-    private EditText nameInput;
-
+    private EditText nameInput, msgInput;
 
     /**
      * 消息监听
@@ -52,10 +53,10 @@ public class MainActivity extends AppCompatActivity {
             LogUtils.d("发送端" + from);
             //收到消息
             mData.addAll(messages);
-           runOnUiThread(() -> {
-               mAdapter.notifyDataSetChanged();
-               nameInput.setText(from);
-           });
+            runOnUiThread(() -> {
+                mAdapter.notifyDataSetChanged();
+                nameInput.setText(from);
+            });
         }
 
         @Override
@@ -222,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
      * 初始化组件
      */
     private void initView() {
+        msgInput = (EditText) findViewById(R.id.msg_input);
         nameInput = (EditText) findViewById(R.id.name_input);
         callVideo = findViewById(R.id.call_video);
         RecyclerView mainRv = findViewById(R.id.main_rv);
@@ -244,15 +246,20 @@ public class MainActivity extends AppCompatActivity {
      * 发送文本信息
      */
     private void sendTextMessage() {
-        String content = "hello";
         String name = getToChatUserName();
         if (name != null) {
-            //创建一条文本消息，content为消息文字内容，toChatUsername为对方用户或者群聊的id，后文皆是如此
-            EMMessage message = EMMessage.createTxtSendMessage(content, name);
-            //发送消息
-            EMClient.getInstance().chatManager().sendMessage(message);
-            mData.add(message);
-            mAdapter.notifyDataSetChanged();
+            String content = msgInput.getText().toString();
+            if (content.isEmpty()){
+                Toast.makeText(this, "不能发送空消息", Toast.LENGTH_SHORT).show();
+            }else {
+                //创建一条文本消息，content为消息文字内容，toChatUsername为对方用户或者群聊的id，后文皆是如此
+                EMMessage message = EMMessage.createTxtSendMessage(content, name);
+                //发送消息
+                EMClient.getInstance().chatManager().sendMessage(message);
+                msgInput.setText("");
+                mData.add(message);
+                mAdapter.notifyDataSetChanged();
+            }
         }
     }
 
